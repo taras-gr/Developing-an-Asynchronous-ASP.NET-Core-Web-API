@@ -4,7 +4,7 @@ namespace Books.API.Services;
 
 public interface IBooksRepository
 {
-    //IEnumerable<Book> GetBooks();
+    IEnumerable<Book> GetBooks();
     //Book? GetBook(Guid id);
 
     Task<IEnumerable<Book>> GetBooksAsync();

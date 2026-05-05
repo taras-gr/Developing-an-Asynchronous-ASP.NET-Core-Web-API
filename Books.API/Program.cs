@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+ThreadPool.SetMaxThreads(2, 2);
+
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -13,6 +15,8 @@ builder.Services.AddDbContext<BooksContext>(options =>
         builder.Configuration.GetConnectionString("BooksDbConnectionString")));
 
 builder.Services.AddScoped<IBooksRepository, BooksRepository>();
+
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 var app = builder.Build();
 
