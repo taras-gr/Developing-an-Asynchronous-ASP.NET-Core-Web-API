@@ -22,6 +22,19 @@ public class BooksController(IBooksRepository booksRepository, IMapper mapper) :
         return Ok(books);
     }
 
+    [HttpGet("booksstream")]
+    public async IAsyncEnumerable<BookDto> GetBooksStream()
+    {
+        HttpContext.Response.ContentType = "text/event-stream";
+
+        await foreach (var bookFromRepository in
+            _booksRepository.GetBooksAsAsyncEnumerable())
+        {
+            await Task.Delay(500);
+            yield return _mapper.Map<BookDto>(bookFromRepository);
+        }
+    }
+
     [HttpGet("{id}", Name = nameof(GetBook))]
     [TypeFilter(typeof(BookResultFilter))]
     public async Task<IActionResult> GetBook(Guid id)
