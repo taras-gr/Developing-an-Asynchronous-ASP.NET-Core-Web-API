@@ -16,6 +16,13 @@ public class BooksRepository(BooksContext context) : IBooksRepository
             .FirstOrDefaultAsync(b => b.Id == id);
     }
 
+    public void AddBook(Book bookToAdd)
+    {
+        ArgumentNullException.ThrowIfNull(bookToAdd);
+
+        _context.Books.Add(bookToAdd);
+    }
+
     public IEnumerable<Book> GetBooks()
     {
         return _context.Books
@@ -28,5 +35,18 @@ public class BooksRepository(BooksContext context) : IBooksRepository
         return await _context.Books
             .Include(b => b.Author)
             .ToListAsync();
+    }
+
+    public async Task<IEnumerable<Book>> GetBooksAsync(IEnumerable<Guid> bookIds)
+    {
+        return await _context.Books
+            .Where(b => bookIds.Contains(b.Id))
+            .Include(b => b.Author)
+            .ToListAsync();
+    }
+
+    public async Task<bool> SaveChangesAsync()
+    {
+        return (await _context.SaveChangesAsync() > 0);
     }
 }
