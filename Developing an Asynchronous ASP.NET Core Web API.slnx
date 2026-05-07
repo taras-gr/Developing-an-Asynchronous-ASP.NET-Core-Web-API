@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="BookCovers.API/BookCovers.API.csproj" Id="c8d366a5-a52d-4fc6-a014-e02fc3175b20" />
   <Project Path="Books.API/Books.API.csproj" />
 </Solution>

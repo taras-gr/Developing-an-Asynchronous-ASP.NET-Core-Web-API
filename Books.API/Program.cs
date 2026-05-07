@@ -10,6 +10,8 @@ ThreadPool.SetMaxThreads(2, 2);
 
 builder.Services.AddControllers();
 
+builder.Services.AddHttpClient();
+
 builder.Services.AddDbContext<BooksContext>(options =>
     options.UseSqlite(
         builder.Configuration.GetConnectionString("BooksDbConnectionString")));

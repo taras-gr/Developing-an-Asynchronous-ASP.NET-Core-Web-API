@@ -2,6 +2,7 @@
 using Books.API.Entities;
 using Books.API.Filters;
 using Books.API.Models;
+using Books.API.Models.External;
 using Books.API.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -36,15 +37,25 @@ public class BooksController(IBooksRepository booksRepository, IMapper mapper) :
     }
 
     [HttpGet("{id}", Name = nameof(GetBook))]
-    [TypeFilter(typeof(BookResultFilter))]
-    public async Task<IActionResult> GetBook(Guid id)
+    [TypeFilter(typeof(BookWithCoversResultFilter))]
+    public async Task<IActionResult> GetBook(Guid id, CancellationToken cancellationToken)
     {
         var book = await _booksRepository.GetBookAsync(id);
         if (book == null)
         {
             return NotFound();
         }
-        return Ok(book);
+
+        //var bookCover = await _booksRepository
+        //    .GetBookCoverAsync("dummycover");
+
+        var bookCovers = await _booksRepository
+            .GetBookCoversProcessOneByOneAsync(id, cancellationToken);
+
+        //var bookCovers = await _booksRepository
+        //    .GetBookCoversProcessAfterWaitForAllAsync(id);
+
+        return Ok((book, bookCovers));
     }
 
     [HttpPost]
