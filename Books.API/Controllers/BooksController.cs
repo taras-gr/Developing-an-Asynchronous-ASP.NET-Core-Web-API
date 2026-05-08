@@ -4,16 +4,19 @@ using Books.API.Filters;
 using Books.API.Models;
 using Books.API.Models.External;
 using Books.API.Services;
+using Books.Legacy;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Books.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class BooksController(IBooksRepository booksRepository, IMapper mapper) : ControllerBase
+public class BooksController(IBooksRepository booksRepository, 
+    IMapper mapper, ILogger<BooksController> logger) : ControllerBase
 {
     private readonly IBooksRepository _booksRepository = booksRepository;
     private readonly IMapper _mapper = mapper;
+    private readonly ILogger<BooksController> _logger = logger;
 
     [HttpGet]
     [TypeFilter(typeof(BooksResultFilter))]
@@ -40,11 +43,15 @@ public class BooksController(IBooksRepository booksRepository, IMapper mapper) :
     [TypeFilter(typeof(BookWithCoversResultFilter))]
     public async Task<IActionResult> GetBook(Guid id, CancellationToken cancellationToken)
     {
+        _logger.LogInformation($"ThreadId when entering GetBook: {Thread.CurrentThread.ManagedThreadId}");
+
         var book = await _booksRepository.GetBookAsync(id);
         if (book == null)
         {
             return NotFound();
         }
+        
+        var amountOfPages = await GetBookPages_BadCode(id);
 
         //var bookCover = await _booksRepository
         //    .GetBookCoverAsync("dummycover");
@@ -56,6 +63,18 @@ public class BooksController(IBooksRepository booksRepository, IMapper mapper) :
         //    .GetBookCoversProcessAfterWaitForAllAsync(id);
 
         return Ok((book, bookCovers));
+    }
+
+    private Task<int> GetBookPages_BadCode(Guid guid)
+    {
+        return Task.Run(() =>
+        {
+            var pageCalculator = new ComplicatedPageCalculator();
+
+            _logger.LogInformation($"ThreadId when calculating book pages: {Thread.CurrentThread.ManagedThreadId}");
+
+            return pageCalculator.CalculateBookPages(guid);
+        });
     }
 
     [HttpPost]
